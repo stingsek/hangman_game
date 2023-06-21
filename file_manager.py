@@ -1,5 +1,3 @@
-import os
-
 
 def is_file_valid(file_path):
     lines = []
