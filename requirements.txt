@@ -1,3 +1,2 @@
 pygame==2.4.0
-tk==0.1.0
-tkinter
+tk
