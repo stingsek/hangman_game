@@ -7,7 +7,7 @@ This is a simple snake game repo, created using python and pygame.
 ## Cloning the project
 ```bash
 git clone https://github.com/stingsek/hangman_game.git
-cd hangman
+cd hangman_game
 ```
 
 ## Running as script
