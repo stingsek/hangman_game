@@ -7,6 +7,8 @@ from hangman_manager import *
 from file_manager import load, is_file_valid, extract_category
 from tkinter import *
 from tkinter import filedialog, messagebox
+import matplotlib
+matplotlib.use('Agg')
 
 # FREQUENTLY USED COLORS
 WHITE = (255,255,255)
