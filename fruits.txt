@@ -1,10 +1,9 @@
 banana
-watermelon
-kiwi
-apple
-pomelo
-strawberry
-raspberry
 red grapes
-passionfruit
-coconut
+kiwi
+orange
+strawberry
+pomelo
+apple
+pear
+purple grapes

@@ -18,6 +18,9 @@ class HangmanManager:
             image = pygame.image.load(dir_path + str(i) + ".png")
             self.hangman_images.append(image)
         return self.hangman_images
+    
+    def is_hangman_alive(self):
+        return self.hangman_status < (len(self.hangman_images) - 1)
 
     def draw_hangman(self, screen):
         screen.blit(self.hangman_images[self.hangman_status],(HANGMAN_IMAGE_X,HANGMAN_IMAGE_Y))

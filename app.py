@@ -4,7 +4,7 @@ from button import Button as Bt
 from hangman_letters import *
 from hangman_word import *
 from hangman import *
-from file_manager import load, is_file_valid
+from file_manager import load, is_file_valid, extract_category
 from tkinter import *
 from tkinter import filedialog, messagebox
 
@@ -19,7 +19,7 @@ class Game:
         self.word_manager = WordManager(screen)
         self.hangman_manager = HangmanManager()
         self.clock = pygame.time.Clock()
-
+        self.category = ""
 
     def start(self):
         pygame.display.set_caption("Hangman")
@@ -54,14 +54,33 @@ class Game:
         
             pygame.display.update()
             
-        
-    def choose_level(self, play_sound=True):
+
+    def load_file(self):
+            
+            # create and hide root window
+            root = Tk()
+            root.withdraw()
+            
+            # open filedialog to pick a file
+            filepath = filedialog.askopenfilename(title="Select a file", filetypes=(("txt files", ".txt"),("all files", ".")), parent=None)
+
+            # cutting ".txt"
+
+            self.category = extract_category(filepath)
+
+            if filepath:
+                while not is_file_valid(filepath):
+                    messagebox.showerror("FILE ERROR", "Check if the file is not empty and if it consists only of letters and spaces.")
+                    self.load_file()
+                words = load(filepath)
+                self.word_manager.words = words
+                self.main_menu()
+            else:
+                self.exit()   
+
+
+    def choose_level(self):
         pygame.display.set_caption("Hangman Level Selection")
-
-        game_sound = pygame.mixer.Sound('sounds/easy_music.mp3')
-
-        if play_sound:
-            game_sound.play()
 
         while True:
             self.screen.fill(WHITE)
@@ -88,6 +107,7 @@ class Game:
             for button in [EASY_BUTTON, MEDIUM_BUTTON, HARD_BUTTON]:
                 button.changeColor(LEVEL_MOUSE_POS)
                 button.update(self.screen)
+
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -100,93 +120,9 @@ class Game:
                     if HARD_BUTTON.checkForInput(LEVEL_MOUSE_POS):
                         self.word_manager.set_word_difficulty("hard")
                     self.play()
+                
 
             pygame.display.update()
-
-
-    def load_file(self):
-            
-            # create and hide root window
-            root = Tk()
-            root.withdraw()
-            
-            # open filedialog to pick a file
-            filepath = filedialog.askopenfilename(title="Select a file", filetypes=(("txt files", ".txt"),("all files", ".")), parent=None)
-
-            if filepath:
-                while not is_file_valid(filepath):
-                    messagebox.showerror("FILE ERROR", "Check if the file is not empty and if it consists only of letters and spaces.")
-                    self.load_file()
-                words = load(filepath)
-                self.word_manager.words = words
-                self.main_menu()
-            else:
-                self.exit()
-
-            
-    def play(self):
-        pygame.display.set_caption("Hangman Game")
-        
-        run = True
-
-        self.hangman_manager.load_hangman_images("images/hangman")
-
-        word = self.word_manager.pick_random_word()
-
-        letters = self.letter_manager.get_letters()
-
-        game_font = self.font_manager.get_font(20)
-
-       
-        def refresh_game_screen():
-
-            WHITE = (255,255,255)
-            BLACK = (0,0,0)
-
-            self.screen.fill(WHITE)
-            self.letter_manager.draw_letters(self.screen,letters,BLACK,game_font)
-            self.word_manager.draw_word(self.screen,word,self.word_manager.guessed_letters,BLACK,game_font)
-            self.hangman_manager.draw_hangman(self.screen)
-
-
-        def handle_mouse_click(mouse_pos):
-            m_x, m_y = mouse_pos
-            for letter in letters:
-                l_x, l_y, l, visible = letter
-                if visible:
-                    if self.letter_manager.is_letter_clicked(l_x,l_y,m_x,m_y):
-                        self.word_manager.update_guessed_letters(l)
-                        self.word_manager.update_word()
-                        letter[3] = False
-                        if l not in word:
-                            self.word_manager.errors += 1
-
-
-        FPS = 60
-        while run:
-            # while loop runs with FPS speed
-            self.clock.tick(FPS)
-            
-            #update the display
-            refresh_game_screen()
-
-            MOUSE_POS = pygame.mouse.get_pos()
-
-            # loop through event
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    handle_mouse_click(MOUSE_POS)
-            pygame.display.update()                    
-
-
-    def reset():
-        pass
-
-    def exit(self):
-        pygame.quit()
-        sys.exit()
 
 
     def main_menu(self,play_sound=True):
@@ -198,7 +134,7 @@ class Game:
             menu_sound.play()
 
         while True:
-            self.screen.fill((255,255,255))
+            self.screen.fill(WHITE)
 
             MENU_BG = pygame.image.load("images/menu_background.jpg")
 
@@ -210,41 +146,196 @@ class Game:
 
             MENU_RECT = MENU_TEXT.get_rect(center=(400,100))
 
-            PLAY_BUTTON = Bt(image=pygame.image.load("images/button_rect.png"),pos=[400,250],text_input="PLAY", font=self.font_manager.get_font(40),base_color="#d7fcd4",hovering_color="White")
+            PLAY_BUTTON = Bt(image=pygame.image.load("images/button_rect.png"),pos=[400,300],text_input="PLAY", font=self.font_manager.get_font(40),base_color="#d7fcd4",hovering_color="White")
 
-            CHANGE_FILE_BUTTON = Bt(image=pygame.image.load("images/button_rect.png"),pos=[400,350],text_input="CHANGE FILE", font=self.font_manager.get_font(40),base_color="#d7fcd4",hovering_color="White")
-
-            QUIT_BUTTON = Bt(image=pygame.image.load("images/button_rect.png"),pos=[400,450],text_input="QUIT", font=self.font_manager.get_font(40),base_color="#d7fcd4",hovering_color="White")
+            QUIT_BUTTON = Bt(image=pygame.image.load("images/button_rect.png"),pos=[400,425],text_input="QUIT", font=self.font_manager.get_font(40),base_color="#d7fcd4",hovering_color="White")
 
             self.screen.blit(MENU_TEXT,MENU_RECT)
 
         
-            for button in [PLAY_BUTTON, CHANGE_FILE_BUTTON, QUIT_BUTTON]:
+            for button in [PLAY_BUTTON, QUIT_BUTTON]:
                 button.changeColor(MENU_MOUSE_POS)
                 button.update(self.screen)
-            
+
+    
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     menu_sound.stop()
                     if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                         self.choose_level()
-                    if CHANGE_FILE_BUTTON.checkForInput(MENU_MOUSE_POS):
-                        self.load_file()
                     if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                         self.exit()
+            pygame.display.update() 
+
+
+    def play(self, play_sound=True):
+        pygame.display.set_caption("Hangman Game")
+
+        game_sound = pygame.mixer.Sound('sounds/easy_music.mp3')
+
+        if play_sound:
+            game_sound.play()
+
+        self.hangman_manager.load_hangman_images("images/hangman")
+
+        word = self.word_manager.pick_random_word().upper()
+
+        letters = self.letter_manager.get_letters()
+
+        game_font = self.font_manager.get_font(20)
+
+        CATEGORY_TEXT = game_font.render(self.category, True, "#b68f40")
+
+        CATEGORY_RECT = CATEGORY_TEXT.get_rect(center=(self.screen.get_size()[0] // 2, 50))
+
+        def sleep_after_result():
+            pygame.time.wait(4000)
+
+       
+        def refresh_game_screen():
+
+            self.screen.fill(WHITE)
+            self.screen.blit(CATEGORY_TEXT, CATEGORY_RECT)
+            self.letter_manager.draw_letters(self.screen,letters,BLACK,game_font)
+            self.word_manager.draw_word(self.screen,word,self.word_manager.guessed_letters,BLACK,game_font)
+            self.hangman_manager.draw_hangman(self.screen)
+
+
+        def check_game_over():
+            if self.hangman_manager.is_hangman_alive() and self.word_manager.is_word_in_guessed_letters(word):
+                user_won()
+            if not self.hangman_manager.is_hangman_alive():
+                user_lost()
+
+
+        def user_won():
+            game_sound.stop()
+            win_sound = pygame.mixer.Sound('sounds/star.wav')
+            win_sound.play()
+            sleep_after_result()
+            self.post_play("WON")
+          
+            
+
+        def user_lost():
+            game_sound.stop()
+            game_over_sound = pygame.mixer.Sound('sounds/game_over.wav')
+            game_over_sound.play()
+            sleep_after_result()
+            self.post_play("LOST")
+            
+
+        
+        def handle_mouse_click(mouse_pos):
+            m_x, m_y = mouse_pos
+            for letter in letters:
+                l_x, l_y, ltr, visible = letter
+                if visible:
+                    if self.letter_manager.is_letter_clicked(l_x,l_y,m_x,m_y):
+                        self.word_manager.update_guessed_letters(ltr)
+                        letter[3] = False
+                        if ltr not in word:
+                            self.hangman_manager.hangman_status += 1
+
+
+        FPS = 60
+        while self.hangman_manager.is_hangman_alive():
+            # while loop runs with FPS speed
+            self.clock.tick(FPS)
+            
+            MOUSE_POS = pygame.mouse.get_pos()
+
+            # loop through event
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    handle_mouse_click(MOUSE_POS)
+                    
+            #update the display       
+            refresh_game_screen()
             pygame.display.update()
 
-def run():
-    pygame.init()
+            # check whether game is over
+            check_game_over()
+    
+    
+    def post_play(self, game_result):
 
+
+        while True:
+            self.screen.fill(WHITE)
+
+            POST_PLAY_BG = pygame.image.load("images/menu_background.jpg")
+
+            self.screen.blit(POST_PLAY_BG, (0,0))
+
+            POST_PLAY_MOUSE_POS = pygame.mouse.get_pos()
+
+            POST_PLAY_TEXT = self.font_manager.get_font(60).render("YOU " + str(game_result), True, "#b68f40")
+
+            POST_PLAY_RECT = POST_PLAY_TEXT.get_rect(center=(400,100))
+
+            RESET_BUTTON = Bt(image=pygame.image.load("images/button_rect.png"),pos=[400,300],text_input="RESET GAME", font=self.font_manager.get_font(40),base_color="#d7fcd4",hovering_color="White")
+
+            NEXT_WORD_BUTTON = Bt(image=pygame.image.load("images/button_rect.png"),pos=[400,425],text_input="NEXT WORD", font=self.font_manager.get_font(40),base_color="#d7fcd4",hovering_color="White")
+
+            self.screen.blit(POST_PLAY_TEXT,POST_PLAY_RECT)
+
+        
+            for button in [RESET_BUTTON, NEXT_WORD_BUTTON]:
+                button.changeColor(POST_PLAY_MOUSE_POS)
+                button.update(self.screen)
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if RESET_BUTTON.checkForInput(POST_PLAY_MOUSE_POS):
+                        self.reset_game()
+                    if NEXT_WORD_BUTTON.checkForInput(POST_PLAY_MOUSE_POS):
+                        self.reset()
+                        self.play()
+            pygame.display.update()                            
+
+
+    def reset_game(self):
+        run()
+
+
+    def reset(self):
+        words = self.word_manager.words
+        word_min_length = self.word_manager.word_min_length
+        word_max_length = self.word_manager.word_max_length
+        self.font_manager = FontManager()
+        self.letter_manager = LetterManager(self.screen)
+        self.word_manager = WordManager(self.screen)
+        self.word_manager.words = words
+        self.word_manager.word_min_length = word_min_length
+        self.word_manager.word_max_length = word_max_length
+        self.hangman_manager = HangmanManager()
+        self.clock = pygame.time.Clock()
+        self.category = ""
+
+
+    def exit(self):
+        pygame.quit()
+        sys.exit()
+
+
+def set_up_game():
+
+    pygame.init()
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
-    game = Game(SCREEN)
-    game.start()
 
+    return Game(SCREEN)
+
+def run():
+    game = set_up_game()
+    game.start()
 
 run()

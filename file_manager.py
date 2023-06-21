@@ -14,7 +14,7 @@ def is_file_valid(file_path):
         except (UnicodeDecodeError, FileNotFoundError, PermissionError):
             return False        
 
-# line is valid if it contains only letters or spaces
+# line is valid if it contains only letters or spaces 
 def is_line_valid(line):
     return all(c.isalpha() or c.isspace() for c in line)
 
@@ -35,4 +35,9 @@ def is_text_file(file_path):
 def load(file_path):
     with open(file_path,'r', encoding='utf-8') as file:
         words = [line.rstrip('\n') for line in file]
-    return words       
+    return words
+
+def extract_category(filepath):
+    start_index = filepath.rindex('/') + 1
+    end_index = len(filepath) - 4
+    return filepath[start_index:end_index].upper()       
