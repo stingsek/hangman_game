@@ -5,7 +5,7 @@ if [[ $(id -u) -ne 0 ]]; then
 fi
 
 apt update
-apt-get install git python3 python3-pip -y
+apt-get install git python3 python3-pip python3-tk -y
 git clone https://github.com/stingsek/hangman_game.git
 cd hangman_game
 rm install.sh
