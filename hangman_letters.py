@@ -20,7 +20,7 @@ class LetterManager:
         # check whether the click is inside the letter circle
         return (m_x - l_x) ** 2 + (m_y - l_y) ** 2 <= (RADIUS ** 2) + LINE_THICKNESS
 
-    def get_letters(self):
+    def get_ascii_letters(self):
         letters = []
         for i, letter in zip(range(LETTERS_COUNT), string.ascii_uppercase):
             x = self.start_x + GAP * 2 + ((RADIUS * 2 + GAP) * (i % LETTERS_PER_LINE))
@@ -38,5 +38,6 @@ class LetterManager:
                 screen.blit(text, (x - text.get_width() / 2, y - text.get_height() / 2))
 
 class FontManager:
-    def get_font(self, size, font_path='fonts/font.ttf'):
+    @staticmethod
+    def get_font(size, font_path='fonts/font.ttf'):
         return pygame.font.Font(font_path, size)

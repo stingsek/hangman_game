@@ -3,11 +3,12 @@ import sys
 from button import Button as Bt
 from hangman_letters import *
 from hangman_word import *
-from hangman import *
+from hangman_manager import *
 from file_manager import load, is_file_valid, extract_category
 from tkinter import *
 from tkinter import filedialog, messagebox
 
+# FREQUENTLY USED COLORS
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 
@@ -34,7 +35,7 @@ class Game:
 
         self.screen.blit(START_TEXT, START_RECT)
 
-        start_panel_time = 500
+        start_panel_time = 5000
         start_panel_active = True 
         next_panel_active = False
 
@@ -67,6 +68,7 @@ class Game:
             # cutting ".txt"
 
             self.category = extract_category(filepath)
+            print(self.category)
 
             if filepath:
                 while not is_file_valid(filepath):
@@ -182,11 +184,12 @@ class Game:
 
         word = self.word_manager.pick_random_word().upper()
 
-        letters = self.letter_manager.get_letters()
+        letters = self.letter_manager.get_ascii_letters()
 
         game_font = self.font_manager.get_font(20)
+        category_font = self.font_manager.get_font(35)
 
-        CATEGORY_TEXT = game_font.render(self.category, True, "#b68f40")
+        CATEGORY_TEXT = category_font.render(self.category, True, "#b68f40")
 
         CATEGORY_RECT = CATEGORY_TEXT.get_rect(center=(self.screen.get_size()[0] // 2, 50))
 
@@ -317,7 +320,6 @@ class Game:
         self.word_manager.word_max_length = word_max_length
         self.hangman_manager = HangmanManager()
         self.clock = pygame.time.Clock()
-        self.category = ""
 
 
     def exit(self):

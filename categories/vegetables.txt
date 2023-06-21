@@ -1,0 +1,7 @@
+onion
+potato
+leek
+tomato
+cucumber
+cabbage
+carrot
