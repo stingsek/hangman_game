@@ -2,7 +2,7 @@
 a game in pygame which helps in practising new words# Snake
 This is a simple snake game repo, created using python and pygame.
 
-#How to install
+# How to install
 
 ## Cloning the project
 ```bash
